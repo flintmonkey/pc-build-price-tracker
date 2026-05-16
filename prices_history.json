@@ -1014,6 +1014,12 @@
       "price": 249.99,
       "in_stock": true,
       "msrp": null
+    },
+    {
+      "date": "2026-05-16",
+      "price": 249.99,
+      "in_stock": true,
+      "msrp": null
     }
   ],
   "https://www.bhphotovideo.com/c/product/1846973-REG/microsoft_kw9_00664_windows_11_home_full.html": [
@@ -1076,6 +1082,12 @@
       "date": "2026-05-05",
       "price": 129.99,
       "in_stock": true
+    },
+    {
+      "date": "2026-05-16",
+      "price": 129.99,
+      "in_stock": true,
+      "msrp": null
     },
     {
       "date": "2026-05-16",
@@ -1400,6 +1412,12 @@
       "price": 699.99,
       "in_stock": true,
       "msrp": null
+    },
+    {
+      "date": "2026-05-16",
+      "price": 699.99,
+      "in_stock": true,
+      "msrp": null
     }
   ],
   "https://www.microcenter.com/product/653734/gskill-trident-z5-neo-rgb-series-32gb-(2-x-16gb)-ddr5-6000-pc5-48000-cl30-dual-channel-desktop-memory-kit-f5-6000j3038f16gx2-tz5nr-black": [
@@ -1452,6 +1470,12 @@
       "date": "2026-05-05",
       "price": 509.99,
       "in_stock": true
+    },
+    {
+      "date": "2026-05-16",
+      "price": 509.99,
+      "in_stock": true,
+      "msrp": null
     },
     {
       "date": "2026-05-16",
@@ -1944,6 +1968,12 @@
       "price": 488.0,
       "in_stock": true,
       "msrp": null
+    },
+    {
+      "date": "2026-05-16",
+      "price": 488.0,
+      "in_stock": true,
+      "msrp": null
     }
   ],
   "https://www.newegg.com/asus-tuf-gaming-rtx-5080-oc/p/N82E16814126736": [
@@ -2156,9 +2186,21 @@
       "price": 119.0,
       "in_stock": true,
       "msrp": null
+    },
+    {
+      "date": "2026-05-16",
+      "price": 119.0,
+      "in_stock": true,
+      "msrp": null
     }
   ],
   "https://www.newegg.com/black-fractal-design-torrent-atx-mid-tower/p/N82E16811352146": [
+    {
+      "date": "2026-05-16",
+      "price": 249.99,
+      "in_stock": true,
+      "msrp": null
+    },
     {
       "date": "2026-05-16",
       "price": 249.99,
@@ -2296,9 +2338,21 @@
       "price": 119.99,
       "in_stock": true,
       "msrp": null
+    },
+    {
+      "date": "2026-05-16",
+      "price": 119.99,
+      "in_stock": true,
+      "msrp": null
     }
   ],
   "https://www.newegg.com/asus-tuf-gaming-tuf-rtx5080-o16g-gaming-geforce-rtx-5080-16gb-graphics-card/p/N82E16814126743": [
+    {
+      "date": "2026-05-16",
+      "price": 1644.99,
+      "in_stock": true,
+      "msrp": null
+    },
     {
       "date": "2026-05-16",
       "price": 1644.99,
@@ -2342,6 +2396,12 @@
       "price": 439.99,
       "in_stock": true,
       "msrp": null
+    },
+    {
+      "date": "2026-05-16",
+      "price": 439.99,
+      "in_stock": true,
+      "msrp": null
     }
   ],
   "https://www.newegg.com/amd-ryzen-7-9850x3d-ryzen-7-9000-series-granite-ridge-socket-am5-desktop-processor/p/N82E16819113934": [
@@ -2350,9 +2410,21 @@
       "price": 474.99,
       "in_stock": true,
       "msrp": null
+    },
+    {
+      "date": "2026-05-16",
+      "price": 474.99,
+      "in_stock": true,
+      "msrp": null
     }
   ],
   "https://www.newegg.com/microsoft-windows-11-home/p/N82E16832351756": [
+    {
+      "date": "2026-05-16",
+      "price": 129.99,
+      "in_stock": true,
+      "msrp": null
+    },
     {
       "date": "2026-05-16",
       "price": 129.99,
