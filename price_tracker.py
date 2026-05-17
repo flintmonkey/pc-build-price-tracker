@@ -772,8 +772,9 @@ def generate_dashboard(config: dict, history: dict) -> None:
         safe_name = html.escape(product_name, quote=True)
         if static_mode:
             target_cell = (
-                f"<td style='padding:8px;border:1px solid #ddd;text-align:center;"
-                f"font-weight:bold'>${target:.2f}</td>"
+                f"<td style='padding:8px;border:1px solid #ddd;text-align:center'>"
+                f"<span style='font-weight:bold'>${target:.2f}</span>"
+                f"</td>"
             )
         else:
             target_cell = (
@@ -823,8 +824,14 @@ def generate_dashboard(config: dict, history: dict) -> None:
 
     if static_mode:
         run_btn_html = (
-            "<p style='font-size:13px;color:#888;margin-bottom:18px'>"
-            "&#8987; Prices update automatically 4&times; daily via GitHub Actions.</p>"
+            "<div style='margin-bottom:18px;display:flex;align-items:center;gap:16px'>"
+            "<span style='font-size:13px;color:#888'>"
+            "&#8987; Prices update automatically 4&times; daily via GitHub Actions.</span>"
+            "<a href='https://github.com/flintmonkey/pc-build-price-tracker/edit/main/config.yaml'"
+            " target='_blank'"
+            " style='font-size:13px;padding:6px 14px;background:#4a90d9;color:#fff;"
+            "border-radius:5px;text-decoration:none;white-space:nowrap'>&#9998; Edit Targets</a>"
+            "</div>"
         )
     else:
         run_btn_html = (
