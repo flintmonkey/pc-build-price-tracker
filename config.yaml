@@ -78,6 +78,11 @@ products:
   store: "amazon"
 
 - name: "G.Skill Trident Z5 Neo RGB 32GB DDR5-6000 CL30 (F5-6000J3038F16GX2-TZ5NR)"
+  url: "https://www.bestbuy.com/product/g-skill-trident-z5-neo-rgb-ddr5-6000-32gb-2x16gb-amd-expo-ram-black/J36V4SLW3F"
+  target_price: 89.00
+  store: "bestbuy"
+  
+- name: "G.Skill Trident Z5 Neo RGB 32GB DDR5-6000 CL30 (F5-6000J3038F16GX2-TZ5NR)"
   url: "https://www.microcenter.com/product/653734/gskill-trident-z5-neo-rgb-series-32gb-(2-x-16gb)-ddr5-6000-pc5-48000-cl30-dual-channel-desktop-memory-kit-f5-6000j3038f16gx2-tz5nr-black"
   target_price: 89.00
   store: "microcenter"
