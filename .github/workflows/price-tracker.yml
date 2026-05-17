@@ -5,6 +5,9 @@ on:
     - cron: '0 6,12,18,0 * * *'  # 6am, noon, 6pm, midnight UTC (2am/8am/2pm/8pm ET)
   workflow_dispatch:               # Allow manual runs from the Actions tab
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 permissions:
   contents: write
   pages: write
