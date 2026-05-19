@@ -1050,6 +1050,12 @@
       "price": 249.99,
       "in_stock": true,
       "msrp": null
+    },
+    {
+      "date": "2026-05-19",
+      "price": 249.99,
+      "in_stock": true,
+      "msrp": null
     }
   ],
   "https://www.bhphotovideo.com/c/product/1846973-REG/microsoft_kw9_00664_windows_11_home_full.html": [
@@ -1199,6 +1205,12 @@
     },
     {
       "date": "2026-05-18",
+      "price": 129.99,
+      "in_stock": true,
+      "msrp": null
+    },
+    {
+      "date": "2026-05-19",
       "price": 129.99,
       "in_stock": true,
       "msrp": null
@@ -1590,6 +1602,12 @@
       "price": 509.99,
       "in_stock": true,
       "msrp": null
+    },
+    {
+      "date": "2026-05-19",
+      "price": 509.99,
+      "in_stock": true,
+      "msrp": null
     }
   ],
   "https://www.microcenter.com/product/706595/noctua-nh-d15-g2-chromaxblack-cpu-air-cooler-black": [
@@ -1917,6 +1935,12 @@
       "price": 1699.99,
       "in_stock": true,
       "msrp": null
+    },
+    {
+      "date": "2026-05-19",
+      "price": 1699.99,
+      "in_stock": true,
+      "msrp": null
     }
   ],
   "https://www.amazon.com/dp/B08699NR75": [
@@ -2027,6 +2051,12 @@
     },
     {
       "date": "2026-05-18",
+      "price": 249.99,
+      "in_stock": true,
+      "msrp": null
+    },
+    {
+      "date": "2026-05-19",
       "price": 249.99,
       "in_stock": true,
       "msrp": null
@@ -2172,6 +2202,12 @@
       "price": 488.0,
       "in_stock": true,
       "msrp": null
+    },
+    {
+      "date": "2026-05-19",
+      "price": 488.0,
+      "in_stock": true,
+      "msrp": null
     }
   ],
   "https://www.newegg.com/asus-tuf-gaming-rtx-5080-oc/p/N82E16814126736": [
@@ -2248,6 +2284,12 @@
     {
       "date": "2026-05-17",
       "price": 419.99,
+      "in_stock": true,
+      "msrp": null
+    },
+    {
+      "date": "2026-05-19",
+      "price": 458.99,
       "in_stock": true,
       "msrp": null
     }
@@ -2438,6 +2480,12 @@
       "price": 119.0,
       "in_stock": true,
       "msrp": null
+    },
+    {
+      "date": "2026-05-19",
+      "price": 119.0,
+      "in_stock": true,
+      "msrp": null
     }
   ],
   "https://www.newegg.com/black-fractal-design-torrent-atx-mid-tower/p/N82E16811352146": [
@@ -2539,6 +2587,12 @@
     },
     {
       "date": "2026-05-18",
+      "price": 249.99,
+      "in_stock": true,
+      "msrp": null
+    },
+    {
+      "date": "2026-05-19",
       "price": 249.99,
       "in_stock": true,
       "msrp": null
@@ -2722,6 +2776,12 @@
       "price": 119.99,
       "in_stock": true,
       "msrp": null
+    },
+    {
+      "date": "2026-05-19",
+      "price": 119.99,
+      "in_stock": true,
+      "msrp": null
     }
   ],
   "https://www.newegg.com/asus-tuf-gaming-tuf-rtx5080-o16g-gaming-geforce-rtx-5080-16gb-graphics-card/p/N82E16814126743": [
@@ -2811,6 +2871,12 @@
     },
     {
       "date": "2026-05-18",
+      "price": 1644.99,
+      "in_stock": true,
+      "msrp": null
+    },
+    {
+      "date": "2026-05-19",
       "price": 1644.99,
       "in_stock": true,
       "msrp": null
@@ -2920,6 +2986,12 @@
       "price": 474.99,
       "in_stock": true,
       "msrp": null
+    },
+    {
+      "date": "2026-05-19",
+      "price": 474.99,
+      "in_stock": true,
+      "msrp": null
     }
   ],
   "https://www.newegg.com/microsoft-windows-11-home/p/N82E16832351756": [
@@ -2991,6 +3063,12 @@
     },
     {
       "date": "2026-05-18",
+      "price": 138.99,
+      "in_stock": true,
+      "msrp": null
+    },
+    {
+      "date": "2026-05-19",
       "price": 138.99,
       "in_stock": true,
       "msrp": null
