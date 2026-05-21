@@ -1,6 +1,6 @@
 # PC Parts Price Tracker
 
-Monitors prices for your PC parts across Newegg, Amazon, NVIDIA Marketplace, and Microcenter (Boston). Sends you a Gmail alert when any price drops below your target, and gives you a local dashboard to view prices and trends at a glance.
+Monitors prices for your PC parts across Newegg, Amazon, B&H Photo, Best Buy, and Microcenter. Sends you a Gmail alert when any price drops below your target, and gives you a live dashboard to view prices and trends at a glance.
 
 ---
 
@@ -27,10 +27,10 @@ Press **Cmd + Space**, type **Terminal**, and press **Enter**.
 
 ### Step 2 — Navigate to the project folder
 
-Copy and paste this line exactly, then press Enter:
+Navigate to wherever you saved the project folder. For example:
 
 ```
-cd /Users/user/Documents/Claude/Projects/PriceTracker
+cd ~/Documents/PriceTracker
 ```
 
 You should see the prompt change to show the folder name. You only need to do this once per Terminal session.
@@ -56,7 +56,7 @@ This downloads the Python packages the tracker needs. You only need to do this *
    ```
    python3 server.py
    ```
-3. Open your browser and go to: **http://localhost:5000**
+3. Open your browser and go to: **http://127.0.0.1:8080**
 4. Click **Run Now** to trigger a fresh price check
 5. The page will automatically refresh when the check is done (~30 seconds)
 6. When you're done, press **Ctrl + C** in the Terminal to stop the server

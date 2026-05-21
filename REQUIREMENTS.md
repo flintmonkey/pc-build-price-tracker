@@ -2,7 +2,7 @@
 
 ## 1. Project Overview
 
-A personal, locally-run Python application that monitors PC component prices across multiple online retailers, maintains a price history, and notifies the user via email when prices drop below predefined target thresholds. A local web dashboard provides a real-time price comparison view with trend data.
+A personal Python application that monitors PC component prices across multiple online retailers, maintains a price history, and notifies the user via email when prices drop below predefined target thresholds. A GitHub Pages dashboard provides a live price comparison view with trend data, with target prices editable directly from the browser.
 
 ---
 
@@ -13,7 +13,7 @@ A personal, locally-run Python application that monitors PC component prices acr
 | ID | Requirement |
 |----|-------------|
 | FR-01 | The system shall fetch current prices for each configured product from its configured store URL |
-| FR-02 | The system shall support the following stores: Newegg, Amazon, NVIDIA Marketplace, B&H Photo, and Microcenter (Cambridge/Boston, store ID 025) |
+| FR-02 | The system shall support the following stores: Newegg, Amazon, B&H Photo, Best Buy, and Microcenter |
 | FR-03 | The system shall attempt multiple HTML parsing strategies per store before marking a price as unavailable |
 | FR-04 | The system shall detect whether each product is In Stock, Out of Stock, or Unknown at the time of each check |
 | FR-05 | A failed price fetch shall log a warning and skip that product without crashing the rest of the run |
@@ -48,13 +48,13 @@ A personal, locally-run Python application that monitors PC component prices acr
 | FR-19 | Store cells fetched on the current day shall be visually highlighted to distinguish fresh vs. stale data |
 | FR-20 | The dashboard shall display the 30-day low and 30-day high price across all stores for each product |
 | FR-21 | The dashboard shall display a 30-day sparkline trend chart for each product |
-| FR-22 | The dashboard shall include a "Run Now" button that triggers an on-demand price check |
+| FR-22 | The public dashboard shall include a GitHub Token modal for storing a PAT, and per-row Save buttons that update target prices directly in config.yaml via the GitHub API |
 
 ### 2.5 Local Web Server
 
 | ID | Requirement |
 |----|-------------|
-| FR-23 | `server.py` shall serve the dashboard at `http://127.0.0.1:5000` |
+| FR-23 | `server.py` shall serve the dashboard at `http://127.0.0.1:8080` |
 | FR-24 | The server shall expose a `POST /run-now` endpoint that triggers `price_tracker.run()` in a background thread |
 | FR-25 | If a price check is already in progress, `POST /run-now` shall return a 409 response with an explanatory message |
 | FR-26 | If `dashboard.html` does not yet exist when the server starts, an empty dashboard shall be auto-generated |
@@ -79,7 +79,7 @@ A personal, locally-run Python application that monitors PC component prices acr
 | CR-03 | Each product entry shall specify: name, URL, target price, and store |
 | CR-04 | Multiple entries with the same `name` field but different stores shall be grouped together in the dashboard |
 | CR-05 | Adding or removing a product shall require only editing `config.yaml` — no code changes |
-| CR-06 | Supported store values: `newegg`, `amazon`, `nvidia`, `bhphoto`, `microcenter` |
+| CR-06 | Supported store values: `newegg`, `amazon`, `bhphoto`, `bestbuy`, `microcenter` |
 
 ---
 
@@ -88,9 +88,9 @@ A personal, locally-run Python application that monitors PC component prices acr
 | ID | Requirement |
 |----|-------------|
 | TR-01 | The application shall run on Python 3.10 or higher |
-| TR-02 | Dependencies: `requests`, `beautifulsoup4`, `lxml`, `PyYAML`, `flask` |
+| TR-02 | Dependencies: `requests`, `beautifulsoup4`, `lxml`, `PyYAML`, `flask`, `cloudscraper`, `feedparser`, `ruamel.yaml`, `certifi` |
 | TR-03 | No browser automation (Selenium, Playwright) — all fetching via `requests` + `BeautifulSoup` |
-| TR-04 | The Microcenter scraper shall pass `storeSelected=025` as a cookie to pin pricing to the Cambridge/Boston store |
+| TR-04 | The Microcenter scraper shall pass a `storeSelected` cookie to pin pricing to the configured store |
 | TR-05 | All scraper functions shall return a `(price, in_stock)` tuple — `None` for either field indicates the value could not be determined |
 | TR-06 | All HTTP requests shall use a realistic browser User-Agent string and a 15-second timeout |
 | TR-07 | Logging shall write to both `price_tracker.log` (file) and stdout simultaneously |
@@ -103,9 +103,8 @@ A personal, locally-run Python application that monitors PC component prices acr
 | Limitation | Detail |
 |---|---|
 | Amazon anti-bot detection | Amazon actively detects and blocks scrapers. Prices may return N/A intermittently. No fix is guaranteed without using a paid proxy or the Amazon Product Advertising API. |
-| NVIDIA Marketplace | The NVIDIA Marketplace page structure may not expose price data in standard HTML — the scraper uses best-effort fallbacks. |
-| Cron requires the machine to be on | The scheduled 9 AM job will not fire if the computer is asleep or off. |
-| Static dashboard | `dashboard.html` is only as fresh as the last run. It does not auto-update without the server running. |
+| GitHub Actions schedule | Prices update 4× daily via GitHub Actions (6 AM, noon, 6 PM, midnight UTC). Manual runs can be triggered from the Actions tab. |
+| Target edit requires PAT | Inline target-price editing from the public dashboard requires a GitHub Fine-Grained PAT with Contents: Read & Write for the repo. |
 | No price-drop history alerts | The tracker only alerts when the current price is below target — it does not alert on percentage drops or sudden price changes. |
 
 ---
@@ -114,15 +113,15 @@ A personal, locally-run Python application that monitors PC component prices acr
 
 | Product | Target Price | Stores |
 |---|---|---|
-| AMD Ryzen 7 9800X3D | $419.99 | Newegg, Amazon |
-| MSI MEG X870E ACE MAX | $649.99 | Newegg, Amazon |
-| G.Skill Trident Z5 Neo RGB 32GB DDR5-6000 | $449.99 | Newegg, Amazon |
-| ASUS TUF Gaming RTX 5080 OC | $1,299.99 | Newegg, Amazon, NVIDIA |
-| Fractal Design Torrent RGB | $169.99 | Newegg, Amazon |
-| Noctua NH-D15 G2 chromax.black | $149.99 | Newegg, Amazon |
-| Windows 11 Home Retail | $109.99 | Newegg |
+| AMD Ryzen 7 9850X3D | $449.00 | Newegg, Amazon, B&H, Best Buy, Microcenter |
+| MSI MEG X870E ACE MAX | $599.00 | Newegg, Amazon, B&H, Microcenter |
+| G.Skill Trident Z5 Neo RGB 32GB DDR5-6000 CL30 | $89.00 | Newegg, Amazon, Best Buy, Microcenter |
+| ASUS TUF Gaming RTX 5080 OC 16GB | $1,199.00 | Newegg, Amazon, B&H, Best Buy, Microcenter |
+| Fractal Design Lumen S28 v2 AIO | $99.00 | Newegg, Amazon, B&H, Best Buy |
+| Fractal Design Torrent RGB | $179.00 | Newegg, Amazon, B&H, Microcenter |
+| Windows 11 Home Retail | $109.00 | Newegg, Amazon, B&H, Best Buy |
 
-*Microcenter URLs to be added manually via `config.yaml` — see README.md for instructions.*
+*Target prices are editable directly from the dashboard — no need to edit `config.yaml` manually.*
 
 ---
 
