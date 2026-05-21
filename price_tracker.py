@@ -770,30 +770,23 @@ def generate_dashboard(config: dict, history: dict) -> None:
         high_text = f"${high_30d:.2f}" if high_30d is not None else "—"
 
         safe_name = html.escape(product_name, quote=True)
-        if static_mode:
-            target_cell = (
-                f"<td style='padding:8px;border:1px solid #ddd;text-align:center'>"
-                f"<span style='font-weight:bold'>${target:.2f}</span>"
-                f"</td>"
-            )
-        else:
-            target_cell = (
-                f"<td style='padding:8px;border:1px solid #ddd;text-align:center'>"
-                f"<div class='target-wrap' style='display:flex;align-items:center;"
-                f"justify-content:center;gap:4px'>"
-                f"<span style='color:#888;font-size:12px'>$</span>"
-                f"<input type='number' class='target-input' step='0.01' min='0' "
-                f"value='{target:.2f}' data-name='{safe_name}' "
-                f"style='width:72px;border:1px solid #ccc;border-radius:3px;"
-                f"padding:3px 5px;font-size:13px;text-align:right' "
-                f"oninput='onTargetChange(this)'>"
-                f"<button class='save-btn' onclick='saveTarget(this)' "
-                f"style='display:none;padding:3px 10px;background:#4a90d9;color:#fff;"
-                f"border:none;border-radius:3px;cursor:pointer;font-size:12px'>Save</button>"
-                f"<span class='save-ok' "
-                f"style='color:#27ae60;font-size:14px;display:none'>&#10003;</span>"
-                f"</div></td>"
-            )
+        target_cell = (
+            f"<td style='padding:8px;border:1px solid #ddd;text-align:center'>"
+            f"<div class='target-wrap' style='display:flex;align-items:center;"
+            f"justify-content:center;gap:4px'>"
+            f"<span style='color:#888;font-size:12px'>$</span>"
+            f"<input type='number' class='target-input' step='0.01' min='0' "
+            f"value='{target:.2f}' data-name='{safe_name}' "
+            f"style='width:72px;border:1px solid #ccc;border-radius:3px;"
+            f"padding:3px 5px;font-size:13px;text-align:right' "
+            f"oninput='onTargetChange(this)'>"
+            f"<button class='save-btn' onclick='saveTarget(this)' "
+            f"style='display:none;padding:3px 10px;background:#4a90d9;color:#fff;"
+            f"border:none;border-radius:3px;cursor:pointer;font-size:12px'>Save</button>"
+            f"<span class='save-ok' "
+            f"style='color:#27ae60;font-size:14px;display:none'>&#10003;</span>"
+            f"</div></td>"
+        )
         mfr_url = entries[0].get("manufacturer_url", "")
         name_html = (
             f"<a href='{html.escape(mfr_url)}' target='_blank' "
@@ -824,20 +817,238 @@ def generate_dashboard(config: dict, history: dict) -> None:
 
     if static_mode:
         run_btn_html = (
-            "<div style='margin-bottom:18px;display:flex;align-items:center;gap:16px'>"
+            "<div style='margin-bottom:18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap'>"
             "<span style='font-size:13px;color:#888'>"
             "&#8987; Prices update automatically 4&times; daily via GitHub Actions.</span>"
-            "<a href='https://github.com/flintmonkey/pc-build-price-tracker/edit/main/config.yaml'"
-            " target='_blank'"
-            " style='font-size:13px;padding:6px 14px;background:#4a90d9;color:#fff;"
-            "border-radius:5px;text-decoration:none;white-space:nowrap'>&#9998; Edit Targets</a>"
+            "<button onclick='showTokenModal()' "
+            "style='font-size:13px;padding:6px 14px;background:#555;color:#fff;"
+            "border:none;border-radius:5px;cursor:pointer;white-space:nowrap'>"
+            "&#9881; GitHub Token</button>"
+            "<span id='token-status' style='font-size:12px'></span>"
             "</div>"
+            "<div id='token-modal' style='display:none;position:fixed;top:0;left:0;"
+            "width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:999;"
+            "align-items:center;justify-content:center'>"
+            "<div style='background:#fff;padding:24px;border-radius:8px;max-width:460px;"
+            "width:90%;box-shadow:0 4px 20px rgba(0,0,0,0.3)'>"
+            "<h3 style='margin:0 0 8px;font-size:16px'>GitHub Personal Access Token</h3>"
+            "<p style='font-size:12px;color:#666;margin:0 0 12px'>Fine-grained PAT with "
+            "<strong>Contents: Read &amp; Write</strong> for this repo. "
+            "Stored only in your browser&#39;s localStorage.</p>"
+            "<input id='token-input' type='password' placeholder='ghp_...' "
+            "style='width:100%;box-sizing:border-box;padding:8px;border:1px solid #ccc;"
+            "border-radius:4px;font-size:13px;margin-bottom:12px'>"
+            "<div style='display:flex;gap:8px;justify-content:flex-end'>"
+            "<button onclick='clearToken()' style='padding:6px 14px;background:#e74c3c;"
+            "color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:13px'>Clear</button>"
+            "<button onclick='closeTokenModal()' style='padding:6px 14px;background:#aaa;"
+            "color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:13px'>Cancel</button>"
+            "<button onclick='saveTokenFromModal()' style='padding:6px 14px;background:#4a90d9;"
+            "color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:13px'>Save</button>"
+            "</div></div></div>"
         )
     else:
         run_btn_html = (
             "<button id='run-btn' onclick='runNow(this)'>Run Now</button>"
             "<span id='run-status'></span>"
         )
+
+    static_js_var = "true" if static_mode else "false"
+    js_section = "<script>\nvar STATIC_MODE = " + static_js_var + ";\n" + r"""
+function onTargetChange(input) {
+  var wrap = input.closest('.target-wrap');
+  wrap.querySelector('.save-btn').style.display = 'inline-block';
+  wrap.querySelector('.save-ok').style.display = 'none';
+  input.style.borderColor = '#ccc';
+}
+
+function saveTarget(btn) {
+  var wrap = btn.closest('.target-wrap');
+  var input = wrap.querySelector('.target-input');
+  var ok = wrap.querySelector('.save-ok');
+  var name = input.getAttribute('data-name');
+  var price = parseFloat(input.value);
+  if (isNaN(price) || price <= 0) return;
+  btn.disabled = true;
+  btn.textContent = '...';
+  if (STATIC_MODE) {
+    saveTargetGitHub(btn, input, ok, name, price);
+  } else {
+    saveTargetLocal(btn, input, ok, name, price);
+  }
+}
+
+function saveTargetLocal(btn, input, ok, name, price) {
+  fetch('http://127.0.0.1:8080/update-target', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({name: name, target_price: price})
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(d) {
+    btn.style.display = 'none';
+    btn.textContent = 'Save';
+    btn.disabled = false;
+    if (d.ok) {
+      input.style.borderColor = '#27ae60';
+      ok.style.display = 'inline';
+      setTimeout(function() {
+        input.style.borderColor = '#ccc';
+        ok.style.display = 'none';
+      }, 2000);
+    } else {
+      input.style.borderColor = '#e74c3c';
+      setTimeout(function() { input.style.borderColor = '#ccc'; }, 2000);
+    }
+  })
+  .catch(function() {
+    btn.textContent = 'Save';
+    btn.disabled = false;
+    input.style.borderColor = '#e74c3c';
+    setTimeout(function() { input.style.borderColor = '#ccc'; }, 2000);
+  });
+}
+
+async function saveTargetGitHub(btn, input, ok, name, price) {
+  var token = localStorage.getItem('gh_pat');
+  if (!token) {
+    btn.textContent = 'Save';
+    btn.disabled = false;
+    showTokenModal();
+    return;
+  }
+  try {
+    var apiUrl = 'https://api.github.com/repos/flintmonkey/pc-build-price-tracker/contents/config.yaml';
+    var getRes = await fetch(apiUrl, {
+      headers: {'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json'}
+    });
+    if (!getRes.ok) throw new Error('GitHub API error: ' + getRes.status);
+    var fileData = await getRes.json();
+    var currentContent = atob(fileData.content.replace(/\s/g, ''));
+    var updatedContent = updateConfigYaml(currentContent, name, price);
+    if (updatedContent === currentContent) throw new Error('Product not found in config.yaml');
+    var putRes = await fetch(apiUrl, {
+      method: 'PUT',
+      headers: {
+        'Authorization': 'token ' + token,
+        'Accept': 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        message: 'Update target for ' + name + ' to $' + price.toFixed(2),
+        content: btoa(unescape(encodeURIComponent(updatedContent))),
+        sha: fileData.sha
+      })
+    });
+    if (!putRes.ok) {
+      var err = await putRes.json().catch(function() { return {}; });
+      throw new Error(err.message || 'Update failed: ' + putRes.status);
+    }
+    btn.style.display = 'none';
+    btn.textContent = 'Save';
+    btn.disabled = false;
+    input.style.borderColor = '#27ae60';
+    ok.style.display = 'inline';
+    setTimeout(function() {
+      input.style.borderColor = '#ccc';
+      ok.style.display = 'none';
+    }, 3000);
+  } catch(e) {
+    btn.textContent = 'Save';
+    btn.disabled = false;
+    input.style.borderColor = '#e74c3c';
+    setTimeout(function() { input.style.borderColor = '#ccc'; }, 3000);
+    alert('Save failed: ' + e.message);
+  }
+}
+
+function updateConfigYaml(content, productName, newPrice) {
+  var lines = content.split('\n');
+  var inProduct = false;
+  var result = [];
+  for (var i = 0; i < lines.length; i++) {
+    var line = lines[i];
+    if (line.trimStart().startsWith('- ')) inProduct = false;
+    if (line.indexOf('name:') !== -1 && line.indexOf(productName) !== -1) inProduct = true;
+    if (inProduct && line.trim().startsWith('target_price:')) {
+      var indent = line.match(/^(\s*)/)[1];
+      result.push(indent + 'target_price: ' + newPrice.toFixed(2));
+      inProduct = false;
+    } else {
+      result.push(line);
+    }
+  }
+  return result.join('\n');
+}
+
+function showTokenModal() {
+  var modal = document.getElementById('token-modal');
+  modal.style.display = 'flex';
+  var existing = localStorage.getItem('gh_pat');
+  document.getElementById('token-input').value = existing || '';
+  updateTokenStatus();
+}
+
+function closeTokenModal() {
+  document.getElementById('token-modal').style.display = 'none';
+}
+
+function saveTokenFromModal() {
+  var val = document.getElementById('token-input').value.trim();
+  if (val) {
+    localStorage.setItem('gh_pat', val);
+    updateTokenStatus();
+    closeTokenModal();
+  }
+}
+
+function clearToken() {
+  localStorage.removeItem('gh_pat');
+  document.getElementById('token-input').value = '';
+  updateTokenStatus();
+  closeTokenModal();
+}
+
+function updateTokenStatus() {
+  var statusEl = document.getElementById('token-status');
+  if (!statusEl) return;
+  var token = localStorage.getItem('gh_pat');
+  statusEl.textContent = token ? '✓ Token set' : 'No token — click to set';
+  statusEl.style.color = token ? '#27ae60' : '#e74c3c';
+}
+
+window.addEventListener('load', function() {
+  if (STATIC_MODE) updateTokenStatus();
+});
+
+function runNow(btn) {
+  btn.disabled = true;
+  var status = document.getElementById('run-status');
+  status.textContent = 'Starting...';
+  fetch('http://127.0.0.1:8080/run-now', {method: 'POST'})
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      status.textContent = d.message;
+      if (d.ok) {
+        var countdown = 35;
+        var timer = setInterval(function() {
+          countdown--;
+          status.textContent = d.message + ' (refreshing in ' + countdown + 's)';
+          if (countdown <= 0) {
+            clearInterval(timer);
+            location.reload();
+          }
+        }, 1000);
+      } else {
+        btn.disabled = false;
+      }
+    })
+    .catch(function() {
+      status.textContent = 'Could not connect — is server.py running? (python server.py)';
+      btn.disabled = false;
+    });
+}
+</script>"""
 
     dashboard_html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -913,81 +1124,7 @@ def generate_dashboard(config: dict, history: dict) -> None:
   &nbsp;|&nbsp;
   % MSRP shown per-source when MSRP is configured
 </p>
-<script>
-function onTargetChange(input) {{
-  var wrap = input.closest('.target-wrap');
-  wrap.querySelector('.save-btn').style.display = 'inline-block';
-  wrap.querySelector('.save-ok').style.display = 'none';
-  input.style.borderColor = '#ccc';
-}}
-
-function saveTarget(btn) {{
-  var wrap = btn.closest('.target-wrap');
-  var input = wrap.querySelector('.target-input');
-  var ok = wrap.querySelector('.save-ok');
-  var name = input.getAttribute('data-name');
-  var price = parseFloat(input.value);
-  if (isNaN(price) || price <= 0) return;
-  btn.disabled = true;
-  btn.textContent = '...';
-  fetch('http://127.0.0.1:8080/update-target', {{
-    method: 'POST',
-    headers: {{'Content-Type': 'application/json'}},
-    body: JSON.stringify({{name: name, target_price: price}})
-  }})
-  .then(function(r) {{ return r.json(); }})
-  .then(function(d) {{
-    btn.style.display = 'none';
-    btn.textContent = 'Save';
-    btn.disabled = false;
-    if (d.ok) {{
-      input.style.borderColor = '#27ae60';
-      ok.style.display = 'inline';
-      setTimeout(function() {{
-        input.style.borderColor = '#ccc';
-        ok.style.display = 'none';
-      }}, 2000);
-    }} else {{
-      input.style.borderColor = '#e74c3c';
-      setTimeout(function() {{ input.style.borderColor = '#ccc'; }}, 2000);
-    }}
-  }})
-  .catch(function() {{
-    btn.textContent = 'Save';
-    btn.disabled = false;
-    input.style.borderColor = '#e74c3c';
-    setTimeout(function() {{ input.style.borderColor = '#ccc'; }}, 2000);
-  }});
-}}
-
-function runNow(btn) {{
-  btn.disabled = true;
-  var status = document.getElementById('run-status');
-  status.textContent = 'Starting...';
-  fetch('http://127.0.0.1:8080/run-now', {{method: 'POST'}})
-    .then(function(r) {{ return r.json(); }})
-    .then(function(d) {{
-      status.textContent = d.message;
-      if (d.ok) {{
-        var countdown = 35;
-        var timer = setInterval(function() {{
-          countdown--;
-          status.textContent = d.message + ' (refreshing in ' + countdown + 's)';
-          if (countdown <= 0) {{
-            clearInterval(timer);
-            location.reload();
-          }}
-        }}, 1000);
-      }} else {{
-        btn.disabled = false;
-      }}
-    }})
-    .catch(function() {{
-      status.textContent = 'Could not connect — is server.py running? (python server.py)';
-      btn.disabled = false;
-    }});
-}}
-</script>
+{js_section}
 </body>
 </html>"""
 
