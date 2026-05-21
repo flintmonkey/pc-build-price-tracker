@@ -1056,6 +1056,12 @@
       "price": 249.99,
       "in_stock": true,
       "msrp": null
+    },
+    {
+      "date": "2026-05-21",
+      "price": 249.99,
+      "in_stock": true,
+      "msrp": null
     }
   ],
   "https://www.bhphotovideo.com/c/product/1846973-REG/microsoft_kw9_00664_windows_11_home_full.html": [
@@ -1211,6 +1217,12 @@
     },
     {
       "date": "2026-05-19",
+      "price": 129.99,
+      "in_stock": true,
+      "msrp": null
+    },
+    {
+      "date": "2026-05-21",
       "price": 129.99,
       "in_stock": true,
       "msrp": null
@@ -2298,6 +2310,12 @@
       "price": 488.0,
       "in_stock": true,
       "msrp": null
+    },
+    {
+      "date": "2026-05-21",
+      "price": 488.0,
+      "in_stock": true,
+      "msrp": null
     }
   ],
   "https://www.newegg.com/asus-tuf-gaming-rtx-5080-oc/p/N82E16814126736": [
@@ -2758,6 +2776,12 @@
       "price": 249.99,
       "in_stock": true,
       "msrp": null
+    },
+    {
+      "date": "2026-05-21",
+      "price": 249.99,
+      "in_stock": true,
+      "msrp": null
     }
   ],
   "https://www.amazon.com/Windows-11-Home-Digital-Download/dp/B09WCHGP12": [
@@ -2986,6 +3010,12 @@
       "price": 119.99,
       "in_stock": true,
       "msrp": null
+    },
+    {
+      "date": "2026-05-21",
+      "price": 119.99,
+      "in_stock": true,
+      "msrp": null
     }
   ],
   "https://www.newegg.com/asus-tuf-gaming-tuf-rtx5080-o16g-gaming-geforce-rtx-5080-16gb-graphics-card/p/N82E16814126743": [
@@ -3123,6 +3153,12 @@
     },
     {
       "date": "2026-05-20",
+      "price": 1644.99,
+      "in_stock": true,
+      "msrp": null
+    },
+    {
+      "date": "2026-05-21",
       "price": 1644.99,
       "in_stock": true,
       "msrp": null
@@ -3280,6 +3316,12 @@
       "price": 474.99,
       "in_stock": true,
       "msrp": null
+    },
+    {
+      "date": "2026-05-21",
+      "price": 474.99,
+      "in_stock": true,
+      "msrp": null
     }
   ],
   "https://www.newegg.com/microsoft-windows-11-home/p/N82E16832351756": [
@@ -3400,6 +3442,52 @@
     {
       "date": "2026-05-20",
       "price": 138.99,
+      "in_stock": true,
+      "msrp": null
+    },
+    {
+      "date": "2026-05-21",
+      "price": 138.99,
+      "in_stock": true,
+      "msrp": null
+    }
+  ],
+  "https://www.bestbuy.com/product/amd-ryzen-7-9850x3d-8-core-16-thread-3-4ghz-5-6-ghz-max-boost-socket-am5-120w-unlocked-desktop-processor-silver/JXKQHH5Y83": [
+    {
+      "date": "2026-05-21",
+      "price": 474.99,
+      "in_stock": true,
+      "msrp": null
+    }
+  ],
+  "https://www.bestbuy.com/product/g-skill-trident-z5-neo-rgb-ddr5-6000-32gb-2x16gb-amd-expo-ram-black/J36V4SLW3F": [
+    {
+      "date": "2026-05-21",
+      "price": 538.99,
+      "in_stock": false,
+      "msrp": null
+    }
+  ],
+  "https://www.bestbuy.com/product/asus-tuf-gaming-nvidia-geforce-rtx-5080-16gb-gddr7-pci-express-5-0-graphics-card-black/JJGGLH7RLP": [
+    {
+      "date": "2026-05-21",
+      "price": 1609.99,
+      "in_stock": true,
+      "msrp": null
+    }
+  ],
+  "https://www.bestbuy.com/product/fractal-design-lumen-s28-v2-aspect-14-x2-aio-cpu-liquid-water-cooler-rgb/J36XJSZK9Z/sku/11082031": [
+    {
+      "date": "2026-05-21",
+      "price": 119.99,
+      "in_stock": true,
+      "msrp": null
+    }
+  ],
+  "https://www.bestbuy.com/site/microsoft-windows-11-home-english-digital-english/6498482.p": [
+    {
+      "date": "2026-05-21",
+      "price": 139.0,
       "in_stock": true,
       "msrp": null
     }
