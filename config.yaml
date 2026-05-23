@@ -1,3 +1,18 @@
+# Micro Center store ID for pricing (121 = Cambridge/Boston). See microcenter.com store locator.
+microcenter_store_id: "121"
+
+stores:
+  amazon:
+    price_source: api
+  bestbuy:
+    price_source: api
+  newegg:
+    price_source: scrape
+  bhphoto:
+    price_source: scrape
+  microcenter:
+    price_source: scrape
+
 email:
   # Credentials are loaded from GitHub Actions secrets (GMAIL_SENDER, GMAIL_PASSWORD, GMAIL_RECIPIENT).
   # For local use, fill these in. Do not commit real values to a public repo.

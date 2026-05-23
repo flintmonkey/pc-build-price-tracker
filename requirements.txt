@@ -6,3 +6,5 @@ flask>=3.0.0
 feedparser>=6.0.0
 cloudscraper>=1.2.0
 ruamel.yaml>=0.18.0
+certifi>=2024.0.0
+paapi5-python-sdk>=1.0.0

@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-"""Daily price tracker for PC parts across Newegg, B&H Photo, Amazon, NVIDIA, and Microcenter."""
+"""Daily price tracker for PC parts across Newegg, B&H Photo, Amazon, and Microcenter."""
 
 import json
 import logging
 import os
-import re
 import smtplib
 import sys
 from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -17,11 +17,12 @@ import html
 import urllib.request
 
 import certifi
-import cloudscraper
 import feedparser
-import requests
 import yaml
-from bs4 import BeautifulSoup
+
+from build_optimizer import cheapest_cart, group_products, render_build_summary_html
+from providers import fetch_price
+from providers.parsing import filter_anomalous_lows, parse_price
 
 BASE_DIR = Path(__file__).parent
 CONFIG_FILE = BASE_DIR / "config.yaml"
@@ -40,38 +41,24 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
-HEADERS = {
-    "User-Agent": (
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/124.0.0.0 Safari/537.36"
-    ),
-    "Accept-Language": "en-US,en;q=0.9",
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-}
-
-# Per-domain cloudscraper instances so a 403 on one site doesn't poison another.
-_scrapers: dict[str, cloudscraper.CloudScraper] = {}
-
-
-def _get_scraper(key: str) -> cloudscraper.CloudScraper:
-    if key not in _scrapers:
-        _scrapers[key] = cloudscraper.create_scraper()
-    return _scrapers[key]
-
-
-OOS_PHRASES = frozenset([
-    "out of stock",
-    "sold out",
-    "currently unavailable",
-    "temporarily out of stock",
-    "notify me when available",
-    "notify when available",
-    "item is no longer available",
-])
+def _load_dotenv() -> None:
+    """Load .env into os.environ without overwriting existing vars."""
+    env_file = BASE_DIR / ".env"
+    if not env_file.exists():
+        return
+    for line in env_file.read_text().splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        key = key.strip()
+        value = value.strip().strip("'\"")
+        if key and key not in os.environ:
+            os.environ[key] = value
 
 
 def load_config() -> dict:
+    _load_dotenv()
     if not CONFIG_FILE.exists():
         log.error("config.yaml not found at %s", CONFIG_FILE)
         sys.exit(1)
@@ -101,327 +88,37 @@ def save_history(history: dict) -> None:
         json.dump(history, f, indent=2)
 
 
-def _parse_price(text: str) -> float | None:
-    text = text.strip().replace(",", "")
-    match = re.search(r"\$?([\d]+\.[\d]{2})", text)
-    if match:
-        return float(match.group(1))
-    match = re.search(r"\$?([\d]+)", text)
-    if match:
-        return float(match.group(1))
-    return None
+def _check_product(product: dict, config: dict, today: str) -> tuple[dict, dict | None, dict | None]:
+    """Fetch one product; return (product, history_entry or None, alert or None)."""
+    name = product["name"]
+    url = product["url"]
+    target = float(product["target_price"])
+    store = product.get("store", "unknown")
 
+    log.info("Checking %s (%s)...", name, store)
+    current_price, in_stock, msrp = fetch_price(product, config)
 
-def _detect_stock(soup: BeautifulSoup, price: float | None) -> bool | None:
-    """Return True=in stock, False=out of stock, None=unknown."""
-    page_text = soup.get_text(" ", strip=True).lower()
-    if any(phrase in page_text for phrase in OOS_PHRASES):
-        return False
-    if price is not None:
-        return True
-    return None
+    if current_price is None:
+        log.warning("Skipping %s — could not fetch price", name)
+        return product, None, None
 
+    log.info(
+        "  %s: $%.2f (target $%.2f, msrp $%.2f) in_stock=%s",
+        name, current_price, target, msrp or 0, in_stock,
+    )
 
-def fetch_newegg_price(url: str) -> tuple[float | None, bool | None, float | None]:
-    try:
-        resp = requests.get(url, headers=HEADERS, timeout=15)
-        resp.raise_for_status()
-    except requests.RequestException as e:
-        log.warning("Newegg fetch failed for %s: %s", url, e)
-        return None, None, None
-
-    soup = BeautifulSoup(resp.text, "html.parser")
-    price = None
-
-    # Primary: prefer the main product price shown in the price-new-right block.
-    price_el = soup.select_one("div.price-new-right .price-current")
-    if price_el:
-        strong = price_el.find("strong")
-        sup = price_el.find("sup")
-        if strong and sup:
-            try:
-                dollars = strong.get_text(strip=True).replace(",", "")
-                cents = sup.get_text(strip=True).lstrip(".")
-                price = float(f"{dollars}.{cents}")
-            except ValueError:
-                pass
-        if price is None:
-            price = _parse_price(price_el.get_text(strip=True))
-
-    # Fallback: try any valid price-current block if the preferred selector is missing.
-    if price is None:
-        for el in soup.select(".price-current"):
-            text = el.get_text(strip=True)
-            if not text:
-                continue
-            candidate = _parse_price(text)
-            if candidate is not None:
-                price = candidate
-                break
-
-    # Fallback: og:price meta tag
-    if price is None:
-        og_price = soup.find("meta", property="og:price:amount")
-        if og_price and og_price.get("content"):
-            price = _parse_price(og_price["content"])
-
-    # MSRP fetching
-    msrp = None
-    # Try specific class if exists
-    msrp_el = soup.find('span', class_='price-msrp')
-    if msrp_el:
-        msrp = _parse_price(msrp_el.get_text(strip=True))
-    # Fallback: search for MSRP in text
-    if msrp is None:
-        text = soup.get_text()
-        match = re.search(r'MSRP[:\s]*\$?([\d,]+\.[\d]{2})', text, re.IGNORECASE)
-        if match:
-            msrp = float(match.group(1).replace(',', ''))
-
-    if price is None:
-        log.warning("Could not parse Newegg price from %s", url)
-
-    return price, _detect_stock(soup, price), msrp
-
-
-def fetch_bhphoto_price(url: str) -> tuple[float | None, bool | None, float | None]:
-    try:
-        resp = _get_scraper("bhphoto").get(url, timeout=20)
-        resp.raise_for_status()
-    except Exception as e:
-        log.warning("B&H fetch failed for %s: %s", url, e)
-        return None, None, None
-
-    soup = BeautifulSoup(resp.text, "html.parser")
-    price = None
-
-    # Primary: data-selenium="pricingPrice"
-    price_el = soup.find(attrs={"data-selenium": "pricingPrice"})
-    if price_el:
-        price = _parse_price(price_el.get_text(strip=True))
-
-    # Fallback 1: JSON-LD structured data
-    if price is None:
-        for script in soup.find_all("script", type="application/ld+json"):
-            try:
-                data = json.loads(script.string or "")
-                offers = data.get("offers", {})
-                if isinstance(offers, list):
-                    offers = offers[0]
-                raw = offers.get("price") or offers.get("lowPrice")
-                if raw:
-                    price = float(str(raw).replace(",", ""))
-                    break
-            except (json.JSONDecodeError, ValueError, AttributeError):
-                continue
-
-    # Fallback 2: og:price meta tag
-    if price is None:
-        og_price = soup.find("meta", property="og:price:amount")
-        if og_price and og_price.get("content"):
-            price = _parse_price(og_price["content"])
-
-    # MSRP fetching
-    msrp = None
-    text = soup.get_text()
-    match = re.search(r'MSRP[:\s]*\$?([\d,]+\.[\d]{2})', text, re.IGNORECASE)
-    if match:
-        msrp = float(match.group(1).replace(',', ''))
-
-    if price is None:
-        log.warning("Could not parse B&H price from %s", url)
-
-    return price, _detect_stock(soup, price), msrp
-
-
-def fetch_amazon_price(url: str) -> tuple[float | None, bool | None, float | None]:
-    try:
-        resp = requests.get(url, headers=HEADERS, timeout=15)
-        resp.raise_for_status()
-    except requests.RequestException as e:
-        log.warning("Amazon fetch failed for %s: %s", url, e)
-        return None, None, None
-
-    soup = BeautifulSoup(resp.text, "html.parser")
-    price = None
-
-    # Primary: .a-price .a-offscreen — screen-reader text with the full price string
-    price_el = soup.select_one(".a-price .a-offscreen")
-    if price_el:
-        price = _parse_price(price_el.get_text(strip=True))
-
-    # Fallback 1: apex price block used in newer listing pages
-    if price is None:
-        apex = soup.select_one(".apexPriceToPay .a-offscreen")
-        if apex:
-            price = _parse_price(apex.get_text(strip=True))
-
-    # Fallback 2: legacy price block IDs
-    if price is None:
-        for selector in ("#priceblock_dealprice", "#priceblock_ourprice", "#price_inside_buybox"):
-            el = soup.select_one(selector)
-            if el:
-                price = _parse_price(el.get_text(strip=True))
-                if price:
-                    break
-
-    # Fallback 3: JSON-LD structured data
-    if price is None:
-        for script in soup.find_all("script", type="application/ld+json"):
-            try:
-                data = json.loads(script.string or "")
-                offers = data.get("offers", {})
-                if isinstance(offers, list):
-                    offers = offers[0]
-                raw = offers.get("price") or offers.get("lowPrice")
-                if raw:
-                    price = float(str(raw).replace(",", ""))
-                    break
-            except (json.JSONDecodeError, ValueError, AttributeError):
-                continue
-
-    # MSRP fetching
-    msrp = None
-    text = soup.get_text()
-    match = re.search(r'MSRP[:\s]*\$?([\d,]+\.[\d]{2})', text, re.IGNORECASE)
-    if match:
-        msrp = float(match.group(1).replace(',', ''))
-
-    if price is None:
-        log.warning("Could not parse Amazon price from %s", url)
-
-    # Amazon-specific stock detection via the #availability element
-    in_stock = None
-    avail_el = soup.select_one("#availability")
-    if avail_el:
-        avail_text = avail_el.get_text(strip=True).lower()
-        if "in stock" in avail_text or "only" in avail_text:
-            in_stock = True
-        elif any(p in avail_text for p in ("out of stock", "unavailable", "cannot be shipped")):
-            in_stock = False
-
-    if in_stock is None:
-        in_stock = _detect_stock(soup, price)
-
-    return price, in_stock, msrp
-
-
-def fetch_nvidia_price(url: str) -> tuple[float | None, bool | None, float | None]:
-    # NVIDIA Marketplace blocks programmatic access; short timeout so it fails fast.
-    # The URL is kept in config for the dashboard hyperlink.
-    try:
-        resp = requests.get(url, headers=HEADERS, timeout=5)
-        resp.raise_for_status()
-    except requests.RequestException as e:
-        log.warning("NVIDIA fetch failed (site blocks scrapers) for %s: %s", url, e)
-        return None, None, None
-
-    soup = BeautifulSoup(resp.text, "html.parser")
-    price = None
-
-    # Primary: JSON-LD structured data
-    for script in soup.find_all("script", type="application/ld+json"):
-        try:
-            data = json.loads(script.string or "")
-            offers = data.get("offers", {})
-            if isinstance(offers, list):
-                offers = offers[0]
-            raw = offers.get("price") or offers.get("lowPrice")
-            if raw:
-                price = float(str(raw).replace(",", ""))
-                break
-        except (json.JSONDecodeError, ValueError, AttributeError):
-            continue
-
-    # Fallback 1: og:price meta tag
-    if price is None:
-        og_price = soup.find("meta", property="og:price:amount")
-        if og_price and og_price.get("content"):
-            price = _parse_price(og_price["content"])
-
-    # Fallback 2: common price element selectors
-    if price is None:
-        for selector in ("[data-price]", ".product-price", ".price", "#price"):
-            el = soup.select_one(selector)
-            if el:
-                raw = el.get("data-price") or el.get_text(strip=True)
-                price = _parse_price(str(raw))
-                if price:
-                    break
-
-    # MSRP fetching - unlikely to work due to blocking
-    msrp = None
-
-    if price is None:
-        log.warning("Could not parse NVIDIA price from %s", url)
-
-    return price, _detect_stock(soup, price), msrp
-
-
-def fetch_microcenter_price(url: str) -> tuple[float | None, bool | None, float | None]:
-    # storeSelected=121 pins pricing and stock to the Cambridge/Boston location
-    cookies = {"storeSelected": "121"}
-    try:
-        resp = _get_scraper("microcenter").get(url, cookies=cookies, timeout=20)
-        resp.raise_for_status()
-    except Exception as e:
-        log.warning("Microcenter fetch failed for %s: %s", url, e)
-        return None, None, None
-
-    soup = BeautifulSoup(resp.text, "html.parser")
-    price = None
-
-    # Primary: itemprop="price" microdata (content attr holds the numeric value)
-    price_el = soup.find(itemprop="price")
-    if price_el:
-        raw = price_el.get("content") or price_el.get_text(strip=True)
-        price = _parse_price(str(raw))
-
-    # Fallback 1: #pricing section
-    if price is None:
-        pricing = soup.select_one("#pricing .price, #pricing [class*='price']")
-        if pricing:
-            price = _parse_price(pricing.get_text(strip=True))
-
-    # Fallback 2: JSON-LD structured data
-    if price is None:
-        for script in soup.find_all("script", type="application/ld+json"):
-            try:
-                data = json.loads(script.string or "")
-                offers = data.get("offers", {})
-                if isinstance(offers, list):
-                    offers = offers[0]
-                raw = offers.get("price") or offers.get("lowPrice")
-                if raw:
-                    price = float(str(raw).replace(",", ""))
-                    break
-            except (json.JSONDecodeError, ValueError, AttributeError):
-                continue
-
-    # MSRP fetching
-    msrp = None
-    text = soup.get_text()
-    match = re.search(r'MSRP[:\s]*\$?([\d,]+\.[\d]{2})', text, re.IGNORECASE)
-    if match:
-        msrp = float(match.group(1).replace(',', ''))
-
-    if price is None:
-        log.warning("Could not parse Microcenter price from %s", url)
-
-    # Microcenter-specific stock detection
-    in_stock = None
-    avail_el = soup.select_one("#inStoreAvailability, [id*='availability']")
-    if avail_el:
-        avail_text = avail_el.get_text(strip=True).lower()
-        if "in stock" in avail_text or re.search(r"\d+\s+in stock", avail_text):
-            in_stock = True
-        elif "out of stock" in avail_text or "not available" in avail_text:
-            in_stock = False
-
-    if in_stock is None:
-        in_stock = _detect_stock(soup, price)
-
-    return price, in_stock, msrp
+    entry = {"date": today, "price": current_price, "in_stock": in_stock, "msrp": msrp}
+    alert = None
+    if current_price < target:
+        log.info("  BELOW TARGET — adding to alert list")
+        alert = {
+            "name": name,
+            "url": url,
+            "store": store,
+            "current_price": current_price,
+            "target_price": target,
+        }
+    return product, entry, alert
 
 
 def load_camel_seen() -> set[str]:
@@ -463,7 +160,7 @@ def fetch_camelcamelcamel_alerts(config: dict, seen_ids: set[str]) -> list[dict]
         summary = entry.get("summary", "")
 
         # Try to pull the price out of the title first, then the summary
-        price = _parse_price(title) or _parse_price(summary)
+        price = parse_price(title) or parse_price(summary)
 
         log.info("  CamelCamelCamel alert: %s", title)
         alerts.append({
@@ -477,93 +174,6 @@ def fetch_camelcamelcamel_alerts(config: dict, seen_ids: set[str]) -> list[dict]
         })
 
     return alerts
-
-
-def fetch_bestbuy_price(url: str) -> tuple[float | None, bool | None, float | None]:
-    try:
-        resp = _get_scraper("bestbuy").get(url, timeout=20)
-        resp.raise_for_status()
-    except Exception as e:
-        log.warning("Best Buy fetch failed for %s: %s", url, e)
-        return None, None, None
-
-    soup = BeautifulSoup(resp.text, "html.parser")
-    price = None
-
-    # Primary: .priceView-customer-price or .priceView-hero-price
-    for selector in (
-        ".priceView-customer-price span[aria-hidden='true']",
-        ".priceView-hero-price span[aria-hidden='true']",
-        ".priceView-customer-price span",
-        "[data-testid='customer-price'] span[aria-hidden='true']",
-    ):
-        el = soup.select_one(selector)
-        if el:
-            price = _parse_price(el.get_text(strip=True))
-            if price:
-                break
-
-    # Fallback: JSON-LD structured data
-    if price is None:
-        for script in soup.find_all("script", type="application/ld+json"):
-            try:
-                data = json.loads(script.string or "")
-                offers = data.get("offers", {})
-                if isinstance(offers, list):
-                    offers = offers[0]
-                raw = offers.get("price") or offers.get("lowPrice")
-                if raw:
-                    price = float(str(raw).replace(",", ""))
-                    break
-            except (json.JSONDecodeError, ValueError, AttributeError):
-                continue
-
-    # Fallback: og:price meta tag
-    if price is None:
-        og_price = soup.find("meta", property="og:price:amount")
-        if og_price and og_price.get("content"):
-            price = _parse_price(og_price["content"])
-
-    # MSRP fetching
-    msrp = None
-    text = soup.get_text()
-    match = re.search(r'MSRP[:\s]*\$?([\d,]+\.[\d]{2})', text, re.IGNORECASE)
-    if match:
-        msrp = float(match.group(1).replace(',', ''))
-
-    if price is None:
-        log.warning("Could not parse Best Buy price from %s", url)
-
-    # Stock detection: look for add-to-cart button vs sold-out indicators
-    in_stock = None
-    page_text = soup.get_text(" ", strip=True).lower()
-    if "sold out" in page_text or "coming soon" in page_text:
-        in_stock = False
-    elif soup.select_one("[data-button-state='ADD_TO_CART'], .add-to-cart-button"):
-        in_stock = True
-    else:
-        in_stock = _detect_stock(soup, price)
-
-    return price, in_stock, msrp
-
-
-SCRAPERS = {
-    "newegg": fetch_newegg_price,
-    "bhphoto": fetch_bhphoto_price,
-    "amazon": fetch_amazon_price,
-    "nvidia": fetch_nvidia_price,
-    "microcenter": fetch_microcenter_price,
-    "bestbuy": fetch_bestbuy_price,
-}
-
-
-def fetch_price(product: dict) -> tuple[float | None, bool | None, float | None]:
-    store = product.get("store", "").lower()
-    scraper = SCRAPERS.get(store)
-    if not scraper:
-        log.error("Unknown store '%s' for product '%s'", store, product["name"])
-        return None, None, None
-    return scraper(product["url"])
 
 
 # ---------------------------------------------------------------------------
@@ -586,22 +196,6 @@ def _sparkline_svg(prices: list[float], width: int = 80, height: int = 24) -> st
         f'<polyline points="{" ".join(pts)}" fill="none" stroke="#4a90d9" stroke-width="1.5"/>'
         f'</svg>'
     )
-
-
-def _filter_anomalous_lows(prices: list[float]) -> list[float]:
-    """Filter out prices that appear to be anomalous lows (e.g., parsing errors)."""
-    if len(prices) < 3:
-        return prices
-    sorted_prices = sorted(prices)
-    # Use IQR method: exclude prices below Q1 - 1.5*IQR
-    n = len(sorted_prices)
-    q1_idx = n // 4
-    q3_idx = 3 * n // 4
-    q1 = sorted_prices[q1_idx]
-    q3 = sorted_prices[q3_idx]
-    iqr = q3 - q1
-    lower_bound = q1 - 1.5 * iqr
-    return [p for p in prices if p >= lower_bound]
 
 
 def _stock_badge(in_stock: bool | None) -> str:
@@ -675,7 +269,7 @@ def generate_dashboard(config: dict, history: dict) -> None:
             all_prices_flat.extend(prices_30d)
 
         # Filter out anomalous low prices (e.g., parsing errors) before calculating stats
-        all_prices_flat = _filter_anomalous_lows(all_prices_flat)
+        all_prices_flat = filter_anomalous_lows(all_prices_flat)
 
         # Most recent fetch date across stores — used to highlight fresh cells
         dates = [d["date"] for d in store_data.values() if d["date"]]
@@ -690,7 +284,7 @@ def generate_dashboard(config: dict, history: dict) -> None:
             all_records.extend(history.get(entry["url"], []))
         all_records.sort(key=lambda r: r["date"])
         spark_prices = [r["price"] for r in all_records[-30:] if r.get("price") is not None]
-        spark_prices = _filter_anomalous_lows(spark_prices)
+        spark_prices = filter_anomalous_lows(spark_prices)
         sparkline = _sparkline_svg(spark_prices) if len(spark_prices) >= 2 else "—"
 
         # Find the lowest current price across stores for "best price" badge
@@ -814,6 +408,8 @@ def generate_dashboard(config: dict, history: dict) -> None:
         f"<th style='padding:8px;border:1px solid #ddd;background:#f2f2f2'>{s.title()}</th>"
         for s in all_stores
     )
+
+    build_summary_html = render_build_summary_html(products, history)
 
     if static_mode:
         run_btn_html = (
@@ -1099,6 +695,7 @@ function runNow(btn) {
   <span class="fresh-key">highlighted</span> = fetched today
 </p>
 {run_btn_html}
+{build_summary_html}
 <table>
   <thead>
     <tr style="background:#f2f2f2">
@@ -1207,9 +804,22 @@ def send_alert(config: dict, alerts: list[dict]) -> None:
           <tbody>{rows}</tbody>
         </table>"""
 
+    build_note = ""
+    products = config.get("products", [])
+    if products:
+        history = load_history()
+        mix = cheapest_cart(group_products(products), history)
+        if mix.lines:
+            build_note = (
+                f"<p style='font-size:14px;margin:16px 0'>"
+                f"<strong>Cheapest full build (in-stock mix):</strong> ${mix.total:.2f} "
+                f"across {mix.vendor_count} vendor(s)</p>"
+            )
+
     email_html = f"""
     <html><body>
     <h2>Price Drop Alert</h2>
+    {build_note}
     {scraped_section}
     {ccc_section}
     <p style='color:#888;font-size:12px'>Checked on {datetime.now().strftime("%Y-%m-%d %H:%M")}</p>
@@ -1252,35 +862,22 @@ def run() -> None:
     alerts = []
     today = datetime.now().strftime("%Y-%m-%d")
 
-    for product in products:
-        name = product["name"]
-        url = product["url"]
-        target = float(product["target_price"])
-        store = product.get("store", "unknown")
-
-        log.info("Checking %s (%s)...", name, store)
-        current_price, in_stock, msrp = fetch_price(product)
-
-        if current_price is None:
-            log.warning("Skipping %s — could not fetch price", name)
-            continue
-
-        log.info("  %s: $%.2f (target $%.2f, msrp $%.2f) in_stock=%s", name, current_price, target, msrp or 0, in_stock)
-
-        if url not in history:
-            history[url] = []
-        history[url].append({"date": today, "price": current_price, "in_stock": in_stock, "msrp": msrp})
-        history[url] = history[url][-90:]
-
-        if current_price < target:
-            log.info("  BELOW TARGET — adding to alert list")
-            alerts.append({
-                "name": name,
-                "url": url,
-                "store": store,
-                "current_price": current_price,
-                "target_price": target,
-            })
+    with ThreadPoolExecutor(max_workers=5) as executor:
+        futures = {
+            executor.submit(_check_product, product, config, today): product
+            for product in products
+        }
+        for future in as_completed(futures):
+            product, entry, alert = future.result()
+            url = product["url"]
+            if entry is None:
+                continue
+            if url not in history:
+                history[url] = []
+            history[url].append(entry)
+            history[url] = history[url][-90:]
+            if alert:
+                alerts.append(alert)
 
     save_history(history)
 
