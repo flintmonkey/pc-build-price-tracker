@@ -1870,6 +1870,12 @@
       "price": 489.99,
       "in_stock": true,
       "msrp": null
+    },
+    {
+      "date": "2026-05-24",
+      "price": 489.99,
+      "in_stock": true,
+      "msrp": null
     }
   ],
   "https://www.amazon.com/dp/B0DQSMMCSH": [
@@ -1976,6 +1982,12 @@
     },
     {
       "date": "2026-05-23",
+      "price": 1589.0,
+      "in_stock": true,
+      "msrp": null
+    },
+    {
+      "date": "2026-05-24",
       "price": 1589.0,
       "in_stock": true,
       "msrp": null
@@ -2155,6 +2167,12 @@
     },
     {
       "date": "2026-05-22",
+      "price": 249.99,
+      "in_stock": true,
+      "msrp": null
+    },
+    {
+      "date": "2026-05-24",
       "price": 249.99,
       "in_stock": true,
       "msrp": null
@@ -2502,6 +2520,12 @@
       "price": 488.0,
       "in_stock": true,
       "msrp": null
+    },
+    {
+      "date": "2026-05-24",
+      "price": 488.0,
+      "in_stock": true,
+      "msrp": null
     }
   ],
   "https://www.newegg.com/asus-tuf-gaming-rtx-5080-oc/p/N82E16814126736": [
@@ -2589,6 +2613,12 @@
     },
     {
       "date": "2026-05-22",
+      "price": 458.99,
+      "in_stock": true,
+      "msrp": null
+    },
+    {
+      "date": "2026-05-24",
       "price": 458.99,
       "in_stock": true,
       "msrp": null
@@ -2690,6 +2720,12 @@
       "price": 699.99,
       "in_stock": true,
       "msrp": null
+    },
+    {
+      "date": "2026-05-24",
+      "price": 287.44,
+      "in_stock": true,
+      "msrp": null
     }
   ],
   "https://www.amazon.com/ARCTIC-Liquid-Freezer-III-PWM-Controlled/dp/B09VGXMTK4": [
@@ -2787,6 +2823,12 @@
     },
     {
       "date": "2026-05-22",
+      "price": 118.99,
+      "in_stock": true,
+      "msrp": null
+    },
+    {
+      "date": "2026-05-24",
       "price": 118.99,
       "in_stock": true,
       "msrp": null
@@ -3088,6 +3130,12 @@
       "price": 249.99,
       "in_stock": true,
       "msrp": null
+    },
+    {
+      "date": "2026-05-24",
+      "price": 249.99,
+      "in_stock": true,
+      "msrp": null
     }
   ],
   "https://www.amazon.com/Windows-11-Home-Digital-Download/dp/B09WCHGP12": [
@@ -3141,6 +3189,12 @@
     },
     {
       "date": "2026-05-22",
+      "price": 99.0,
+      "in_stock": true,
+      "msrp": null
+    },
+    {
+      "date": "2026-05-24",
       "price": 99.0,
       "in_stock": true,
       "msrp": null
@@ -3406,6 +3460,12 @@
       "price": 119.99,
       "in_stock": true,
       "msrp": null
+    },
+    {
+      "date": "2026-05-24",
+      "price": 119.99,
+      "in_stock": true,
+      "msrp": null
     }
   ],
   "https://www.newegg.com/asus-tuf-gaming-tuf-rtx5080-o16g-gaming-geforce-rtx-5080-16gb-graphics-card/p/N82E16814126743": [
@@ -3609,6 +3669,12 @@
     },
     {
       "date": "2026-05-23",
+      "price": 1644.99,
+      "in_stock": true,
+      "msrp": null
+    },
+    {
+      "date": "2026-05-24",
       "price": 1644.99,
       "in_stock": true,
       "msrp": null
@@ -3856,6 +3922,12 @@
       "price": 474.99,
       "in_stock": false,
       "msrp": null
+    },
+    {
+      "date": "2026-05-24",
+      "price": 474.99,
+      "in_stock": false,
+      "msrp": null
     }
   ],
   "https://www.newegg.com/microsoft-windows-11-home/p/N82E16832351756": [
@@ -4041,6 +4113,12 @@
     },
     {
       "date": "2026-05-23",
+      "price": 138.99,
+      "in_stock": true,
+      "msrp": null
+    },
+    {
+      "date": "2026-05-24",
       "price": 138.99,
       "in_stock": true,
       "msrp": null
