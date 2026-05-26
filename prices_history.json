@@ -1086,6 +1086,12 @@
       "price": 249.99,
       "in_stock": true,
       "msrp": null
+    },
+    {
+      "date": "2026-05-26",
+      "price": 249.99,
+      "in_stock": true,
+      "msrp": null
     }
   ],
   "https://www.bhphotovideo.com/c/product/1846973-REG/microsoft_kw9_00664_windows_11_home_full.html": [
@@ -1253,6 +1259,12 @@
     },
     {
       "date": "2026-05-21",
+      "price": 129.99,
+      "in_stock": true,
+      "msrp": null
+    },
+    {
+      "date": "2026-05-26",
       "price": 129.99,
       "in_stock": true,
       "msrp": null
@@ -1918,6 +1930,12 @@
       "price": 489.99,
       "in_stock": true,
       "msrp": null
+    },
+    {
+      "date": "2026-05-26",
+      "price": 489.99,
+      "in_stock": true,
+      "msrp": null
     }
   ],
   "https://www.amazon.com/dp/B0DQSMMCSH": [
@@ -2061,6 +2079,12 @@
     {
       "date": "2026-05-25",
       "price": 1589.0,
+      "in_stock": true,
+      "msrp": null
+    },
+    {
+      "date": "2026-05-26",
+      "price": 1599.99,
       "in_stock": true,
       "msrp": null
     },
@@ -2281,6 +2305,12 @@
     },
     {
       "date": "2026-05-25",
+      "price": 249.99,
+      "in_stock": true,
+      "msrp": null
+    },
+    {
+      "date": "2026-05-26",
       "price": 249.99,
       "in_stock": true,
       "msrp": null
@@ -2676,6 +2706,12 @@
       "price": 488.0,
       "in_stock": true,
       "msrp": null
+    },
+    {
+      "date": "2026-05-26",
+      "price": 488.0,
+      "in_stock": true,
+      "msrp": null
     }
   ],
   "https://www.newegg.com/asus-tuf-gaming-rtx-5080-oc/p/N82E16814126736": [
@@ -2799,6 +2835,12 @@
     },
     {
       "date": "2026-05-25",
+      "price": 458.99,
+      "in_stock": true,
+      "msrp": null
+    },
+    {
+      "date": "2026-05-26",
       "price": 458.99,
       "in_stock": true,
       "msrp": null
@@ -2934,6 +2976,12 @@
     {
       "date": "2026-05-26",
       "price": 699.99,
+      "in_stock": true,
+      "msrp": null
+    },
+    {
+      "date": "2026-05-26",
+      "price": 289.99,
       "in_stock": true,
       "msrp": null
     }
@@ -3084,6 +3132,12 @@
       "price": 62.09,
       "in_stock": true,
       "msrp": null
+    },
+    {
+      "date": "2026-05-26",
+      "price": 62.09,
+      "in_stock": true,
+      "msrp": null
     }
   ],
   "https://www.bhphotovideo.com/c/product/1901070-REG/fractal_design_fd_w_l1_s2812_lumen_s28_v2_rgb.html": [
@@ -3143,6 +3197,12 @@
     },
     {
       "date": "2026-05-19",
+      "price": 119.0,
+      "in_stock": true,
+      "msrp": null
+    },
+    {
+      "date": "2026-05-26",
       "price": 119.0,
       "in_stock": true,
       "msrp": null
@@ -3424,6 +3484,12 @@
       "price": 249.99,
       "in_stock": true,
       "msrp": null
+    },
+    {
+      "date": "2026-05-26",
+      "price": 249.99,
+      "in_stock": true,
+      "msrp": null
     }
   ],
   "https://www.amazon.com/Windows-11-Home-Digital-Download/dp/B09WCHGP12": [
@@ -3513,6 +3579,12 @@
     },
     {
       "date": "2026-05-25",
+      "price": 99.0,
+      "in_stock": true,
+      "msrp": null
+    },
+    {
+      "date": "2026-05-26",
       "price": 99.0,
       "in_stock": true,
       "msrp": null
@@ -3820,6 +3892,12 @@
       "price": 119.99,
       "in_stock": true,
       "msrp": null
+    },
+    {
+      "date": "2026-05-26",
+      "price": 119.99,
+      "in_stock": true,
+      "msrp": null
     }
   ],
   "https://www.newegg.com/asus-tuf-gaming-tuf-rtx5080-o16g-gaming-geforce-rtx-5080-16gb-graphics-card/p/N82E16814126743": [
@@ -4071,6 +4149,12 @@
     },
     {
       "date": "2026-05-25",
+      "price": 1644.99,
+      "in_stock": true,
+      "msrp": null
+    },
+    {
+      "date": "2026-05-26",
       "price": 1644.99,
       "in_stock": true,
       "msrp": null
@@ -4354,6 +4438,12 @@
       "price": 474.99,
       "in_stock": false,
       "msrp": null
+    },
+    {
+      "date": "2026-05-26",
+      "price": 474.99,
+      "in_stock": false,
+      "msrp": null
     }
   ],
   "https://www.newegg.com/microsoft-windows-11-home/p/N82E16832351756": [
@@ -4587,6 +4677,12 @@
     },
     {
       "date": "2026-05-25",
+      "price": 138.99,
+      "in_stock": true,
+      "msrp": null
+    },
+    {
+      "date": "2026-05-26",
       "price": 138.99,
       "in_stock": true,
       "msrp": null
