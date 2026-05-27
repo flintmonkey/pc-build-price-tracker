@@ -2135,6 +2135,12 @@
       "price": 1599.99,
       "in_stock": true,
       "msrp": null
+    },
+    {
+      "date": "2026-05-27",
+      "price": 1599.99,
+      "in_stock": true,
+      "msrp": null
     }
   ],
   "https://www.microcenter.com/product/689736/asus-nvidia-geforce-rtx-5080-tuf-gaming-overclocked-triple-fan-16gb-gddr7-pcie-50-graphics-card": [
@@ -2802,6 +2808,12 @@
       "price": 488.0,
       "in_stock": true,
       "msrp": null
+    },
+    {
+      "date": "2026-05-27",
+      "price": 488.0,
+      "in_stock": true,
+      "msrp": null
     }
   ],
   "https://www.newegg.com/asus-tuf-gaming-rtx-5080-oc/p/N82E16814126736": [
@@ -3282,6 +3294,12 @@
       "price": 62.09,
       "in_stock": true,
       "msrp": null
+    },
+    {
+      "date": "2026-05-27",
+      "price": 62.09,
+      "in_stock": true,
+      "msrp": null
     }
   ],
   "https://www.bhphotovideo.com/c/product/1901070-REG/fractal_design_fd_w_l1_s2812_lumen_s28_v2_rgb.html": [
@@ -3643,6 +3661,12 @@
     },
     {
       "date": "2026-05-26",
+      "price": 249.99,
+      "in_stock": true,
+      "msrp": null
+    },
+    {
+      "date": "2026-05-27",
       "price": 249.99,
       "in_stock": true,
       "msrp": null
@@ -4096,6 +4120,12 @@
       "price": 119.99,
       "in_stock": true,
       "msrp": null
+    },
+    {
+      "date": "2026-05-27",
+      "price": 119.99,
+      "in_stock": true,
+      "msrp": null
     }
   ],
   "https://www.newegg.com/asus-tuf-gaming-tuf-rtx5080-o16g-gaming-geforce-rtx-5080-16gb-graphics-card/p/N82E16814126743": [
@@ -4371,6 +4401,12 @@
     },
     {
       "date": "2026-05-26",
+      "price": 1644.99,
+      "in_stock": true,
+      "msrp": null
+    },
+    {
+      "date": "2026-05-27",
       "price": 1644.99,
       "in_stock": true,
       "msrp": null
@@ -4678,6 +4714,12 @@
       "price": 474.99,
       "in_stock": true,
       "msrp": null
+    },
+    {
+      "date": "2026-05-27",
+      "price": 474.99,
+      "in_stock": true,
+      "msrp": null
     }
   ],
   "https://www.newegg.com/microsoft-windows-11-home/p/N82E16832351756": [
@@ -4935,6 +4977,12 @@
     },
     {
       "date": "2026-05-26",
+      "price": 138.99,
+      "in_stock": true,
+      "msrp": null
+    },
+    {
+      "date": "2026-05-27",
       "price": 138.99,
       "in_stock": true,
       "msrp": null
