@@ -1556,6 +1556,12 @@
       "price": 699.99,
       "in_stock": true,
       "msrp": null
+    },
+    {
+      "date": "2026-05-29",
+      "price": 699.99,
+      "in_stock": true,
+      "msrp": null
     }
   ],
   "https://www.microcenter.com/product/653734/gskill-trident-z5-neo-rgb-series-32gb-(2-x-16gb)-ddr5-6000-pc5-48000-cl30-dual-channel-desktop-memory-kit-f5-6000j3038f16gx2-tz5nr-black": [
@@ -1677,6 +1683,12 @@
     },
     {
       "date": "2026-05-27",
+      "price": 509.99,
+      "in_stock": true,
+      "msrp": null
+    },
+    {
+      "date": "2026-05-29",
       "price": 509.99,
       "in_stock": true,
       "msrp": null
@@ -2904,6 +2916,12 @@
       "price": 488.0,
       "in_stock": true,
       "msrp": null
+    },
+    {
+      "date": "2026-05-29",
+      "price": 488.0,
+      "in_stock": true,
+      "msrp": null
     }
   ],
   "https://www.newegg.com/asus-tuf-gaming-rtx-5080-oc/p/N82E16814126736": [
@@ -3850,6 +3868,12 @@
       "price": 249.99,
       "in_stock": true,
       "msrp": null
+    },
+    {
+      "date": "2026-05-29",
+      "price": 249.99,
+      "in_stock": true,
+      "msrp": null
     }
   ],
   "https://www.amazon.com/Windows-11-Home-Digital-Download/dp/B09WCHGP12": [
@@ -4360,6 +4384,12 @@
       "price": 119.99,
       "in_stock": true,
       "msrp": null
+    },
+    {
+      "date": "2026-05-29",
+      "price": 119.99,
+      "in_stock": true,
+      "msrp": null
     }
   ],
   "https://www.newegg.com/asus-tuf-gaming-tuf-rtx5080-o16g-gaming-geforce-rtx-5080-16gb-graphics-card/p/N82E16814126743": [
@@ -4704,6 +4734,12 @@
       "price": 1644.99,
       "in_stock": true,
       "msrp": null
+    },
+    {
+      "date": "2026-05-29",
+      "price": 1644.99,
+      "in_stock": true,
+      "msrp": null
     }
   ],
   "https://www.microcenter.com/product/706001/amd-ryzen-7-9850x3d-granite-ridge-am5-470ghz-8-core-boxed-processor-heatsink-not-included": [
@@ -4733,6 +4769,12 @@
     },
     {
       "date": "2026-05-17",
+      "price": 439.99,
+      "in_stock": true,
+      "msrp": null
+    },
+    {
+      "date": "2026-05-29",
       "price": 439.99,
       "in_stock": true,
       "msrp": null
@@ -5062,6 +5104,12 @@
       "price": 499.0,
       "in_stock": true,
       "msrp": null
+    },
+    {
+      "date": "2026-05-29",
+      "price": 499.0,
+      "in_stock": true,
+      "msrp": null
     }
   ],
   "https://www.newegg.com/microsoft-windows-11-home/p/N82E16832351756": [
@@ -5367,6 +5415,12 @@
     },
     {
       "date": "2026-05-28",
+      "price": 138.99,
+      "in_stock": true,
+      "msrp": null
+    },
+    {
+      "date": "2026-05-29",
       "price": 138.99,
       "in_stock": true,
       "msrp": null
