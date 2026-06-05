@@ -12,7 +12,7 @@ camelcamelcamel:
 
 products:
   # Optional: add msrp: 1299.99 to a product entry to display MSRP and % +/- MSRP in the dashboard.
-  # Gaming Desktop Build v2 — Updated May 2026
+  # Gaming Desktop Build v2 â Updated May 2026
 
   # === CPU ===
 - name: "AMD Ryzen 7 9850X3D (100-100001973WOF)"
@@ -68,23 +68,23 @@ products:
   # === Memory ===
 - name: "G.Skill Trident Z5 Neo RGB 32GB DDR5-6000 CL30 (F5-6000J3038F16GX2-TZ5NR)"
   url: "https://www.newegg.com/g-skill-trident-z5-neo-rgb-32gb-ddr5-6000/p/N82E16820374427"
-  target_price: 89.00
+  target_price: 499.00
   store: "newegg"
   manufacturer_url: "https://www.gskill.com/product/165/390/1661410135/F5-6000J3038F16GX2-TZ5NR"
 
 - name: "G.Skill Trident Z5 Neo RGB 32GB DDR5-6000 CL30 (F5-6000J3038F16GX2-TZ5NR)"
   url: "https://www.amazon.com/dp/B0BF8FVLSL"
-  target_price: 89.00
+  target_price: 499.00
   store: "amazon"
 
 - name: "G.Skill Trident Z5 Neo RGB 32GB DDR5-6000 CL30 (F5-6000J3038F16GX2-TZ5NR)"
   url: "https://www.bestbuy.com/product/g-skill-trident-z5-neo-rgb-ddr5-6000-32gb-2x16gb-amd-expo-ram-black/J36V4SLW3F"
-  target_price: 89.00
+  target_price: 499.00
   store: "bestbuy"
   
 - name: "G.Skill Trident Z5 Neo RGB 32GB DDR5-6000 CL30 (F5-6000J3038F16GX2-TZ5NR)"
   url: "https://www.microcenter.com/product/653734/gskill-trident-z5-neo-rgb-series-32gb-(2-x-16gb)-ddr5-6000-pc5-48000-cl30-dual-channel-desktop-memory-kit-f5-6000j3038f16gx2-tz5nr-black"
-  target_price: 89.00
+  target_price: 499.00
   store: "microcenter"
 
   # === GPU ===
