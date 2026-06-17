@@ -41,6 +41,10 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
+# Prevent urllib3/requests debug logs from printing URLs with API keys in query strings.
+logging.getLogger("urllib3").setLevel(logging.WARNING)
+logging.getLogger("requests").setLevel(logging.WARNING)
+
 def _load_dotenv() -> None:
     """Load .env into os.environ without overwriting existing vars."""
     env_file = BASE_DIR / ".env"
@@ -72,7 +76,12 @@ def load_config() -> dict:
     ):
         val = os.environ.get(env_var)
         if val:
-            cfg["email"][key] = val
+            cfg.setdefault("email", {})[key] = val
+
+    rss_env = os.environ.get("CAMELCAMELCAMEL_RSS_URL", "").strip()
+    if rss_env:
+        cfg.setdefault("camelcamelcamel", {})["rss_url"] = rss_env
+
     return cfg
 
 
@@ -86,6 +95,18 @@ def load_history() -> dict:
 def save_history(history: dict) -> None:
     with open(HISTORY_FILE, "w") as f:
         json.dump(history, f, indent=2)
+
+
+def merge_history_entry(history: dict, url: str, entry: dict) -> None:
+    """Append one record for url, retaining a rolling 90-entry window.
+
+    Uses copy-on-write (new list assigned to history[url]) so callers never
+    mutate a list that another thread might be reading. History updates must
+    run on a single thread after concurrent fetches complete.
+    """
+    records = list(history.get(url, []))
+    records.append(entry)
+    history[url] = records[-90:]
 
 
 def _check_product(product: dict, config: dict, today: str) -> tuple[dict, dict | None, dict | None]:
@@ -522,7 +543,16 @@ async function saveTargetGitHub(btn, input, ok, name, price) {
     var fileData = await getRes.json();
     var currentContent = atob(fileData.content.replace(/\s/g, ''));
     var updatedContent = updateConfigYaml(currentContent, name, price);
-    if (updatedContent === currentContent) throw new Error('Product not found in config.yaml');
+    if (updatedContent === null) throw new Error('Product not found in config.yaml');
+    if (updatedContent === currentContent) {
+      btn.style.display = 'none';
+      btn.textContent = 'Save';
+      btn.disabled = false;
+      input.style.borderColor = '#27ae60';
+      ok.style.display = 'inline';
+      setTimeout(function() { input.style.borderColor = '#ccc'; ok.style.display = 'none'; }, 3000);
+      return;
+    }
     var putRes = await fetch(apiUrl, {
       method: 'PUT',
       headers: {
@@ -561,12 +591,14 @@ async function saveTargetGitHub(btn, input, ok, name, price) {
 function updateConfigYaml(content, productName, newPrice) {
   var lines = content.split('\n');
   var inProduct = false;
+  var found = false;
   var result = [];
   for (var i = 0; i < lines.length; i++) {
     var line = lines[i];
     if (line.trimStart().startsWith('- ')) inProduct = false;
     if (line.indexOf('name:') !== -1 && line.indexOf(productName) !== -1) inProduct = true;
     if (inProduct && line.trim().startsWith('target_price:')) {
+      found = true;
       var indent = line.match(/^(\s*)/)[1];
       result.push(indent + 'target_price: ' + newPrice.toFixed(2));
       inProduct = false;
@@ -574,7 +606,7 @@ function updateConfigYaml(content, productName, newPrice) {
       result.push(line);
     }
   }
-  return result.join('\n');
+  return found ? result.join('\n') : null;
 }
 
 function showTokenModal() {
@@ -862,22 +894,23 @@ def run() -> None:
     alerts = []
     today = datetime.now().strftime("%Y-%m-%d")
 
+    # Workers only return fetch results; history is merged on this thread afterward
+    # to avoid lost updates from concurrent read-append-slice-assign on history[url].
+    check_results: list[tuple[dict, dict | None, dict | None]] = []
     with ThreadPoolExecutor(max_workers=5) as executor:
-        futures = {
-            executor.submit(_check_product, product, config, today): product
+        futures = [
+            executor.submit(_check_product, product, config, today)
             for product in products
-        }
+        ]
         for future in as_completed(futures):
-            product, entry, alert = future.result()
-            url = product["url"]
-            if entry is None:
-                continue
-            if url not in history:
-                history[url] = []
-            history[url].append(entry)
-            history[url] = history[url][-90:]
-            if alert:
-                alerts.append(alert)
+            check_results.append(future.result())
+
+    for product, entry, alert in check_results:
+        if entry is None:
+            continue
+        merge_history_entry(history, product["url"], entry)
+        if alert:
+            alerts.append(alert)
 
     save_history(history)
 
